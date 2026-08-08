@@ -206,21 +206,33 @@ videoWrap.addEventListener("touchmove", () => clearTimeout(pressTimer));
 // Permet d'ouvrir ce contrôleur dans le navigateur d'un PC A pour piloter
 // un PC B (qui a l'agent installé), avec une vraie souris et molette.
 let mouseDown = false;
+let lastMoveSent = 0;
+const MOVE_THROTTLE_MS = 25; // ~40 envois/seconde max, pour ne pas engorger le clic
 
 videoWrap.addEventListener("mousemove", (e) => {
-  const { xRatio, yRatio } = toRatio(e.clientX, e.clientY);
-  sendCtl({ type: "mouse-move", xRatio, yRatio });
+  // Le curseur visuel reste fluide (mis à jour à chaque frame)...
   cursorDot.style.display = "block";
   const wrapRect = videoWrap.getBoundingClientRect();
   cursorDot.style.left = e.clientX - wrapRect.left + "px";
   cursorDot.style.top = e.clientY - wrapRect.top + "px";
+
+  // ...mais l'envoi réseau est limité, pour laisser passer les clics sans attendre
+  const now = performance.now();
+  if (now - lastMoveSent < MOVE_THROTTLE_MS) return;
+  lastMoveSent = now;
+  const { xRatio, yRatio } = toRatio(e.clientX, e.clientY);
+  sendCtl({ type: "mouse-move", xRatio, yRatio });
 });
 
 videoWrap.addEventListener("mouseleave", () => { cursorDot.style.display = "none"; });
 
+
 videoWrap.addEventListener("mousedown", (e) => {
   e.preventDefault();
   mouseDown = true;
+  const { xRatio, yRatio } = toRatio(e.clientX, e.clientY);
+  sendCtl({ type: "mouse-move", xRatio, yRatio }); // position exacte garantie avant le clic
+  lastMoveSent = performance.now();
   const button = e.button === 2 ? "right" : e.button === 1 ? "middle" : "left";
   sendCtl({ type: "mouse-button", button, down: true });
 });
