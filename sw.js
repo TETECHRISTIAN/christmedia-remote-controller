@@ -1,4 +1,4 @@
-const CACHE = "cmr-v2";
+const CACHE = "cmr-v3";
 const ASSETS = ["./", "./index.html", "./app.js", "./manifest.json"];
 
 self.addEventListener("install", (e) => {
