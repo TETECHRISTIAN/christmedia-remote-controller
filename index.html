@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Christ Media Remote</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0f172a" />
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+
+  /* ---- Écran de connexion ---- */
+  #connectScreen { display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; padding: 24px; }
+  #connectScreen h1 { color: #facc15; font-size: 20px; margin-bottom: 24px; }
+  .field { width: 100%; max-width: 320px; margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+  .field input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #334155;
+    background: #1e293b; color: #e2e8f0; font-size: 18px; text-align: center; letter-spacing: 1px; }
+  #connectBtn { width: 100%; max-width: 320px; padding: 14px; border-radius: 10px; border: none;
+    background: #facc15; color: #0f172a; font-weight: 700; font-size: 15px; margin-top: 8px; }
+  #connectError { color: #f87171; font-size: 13px; margin-top: 10px; min-height: 16px; }
+
+  /* ---- Écran de session ---- */
+  #sessionScreen { display: none; height: 100%; flex-direction: column; }
+  #topBar { display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; background: #1e293b; font-size: 13px; z-index: 5; }
+  #videoWrap { flex: 1; position: relative; background: #000; overflow: hidden;
+    touch-action: none; }
+  #remoteVideo { width: 100%; height: 100%; object-fit: contain; }
+  #toolbar { display: flex; gap: 8px; padding: 8px; background: #1e293b; overflow-x: auto; }
+  #toolbar button { flex-shrink: 0; padding: 10px 14px; border-radius: 8px; border: none;
+    background: #334155; color: #e2e8f0; font-size: 13px; }
+  #hiddenInput { position: absolute; opacity: 0; pointer-events: none; }
+  #cursorDot { position: absolute; width: 14px; height: 14px; border: 2px solid #facc15;
+    border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); display: none; }
+  .chip { padding: 3px 8px; border-radius: 999px; font-size: 11px; }
+  .chip.on { background: #16653488; color: #4ade80; }
+  .chip.off { background: #7f1d1d88; color: #f87171; }
+</style>
+</head>
+<body>
+
+  <div id="connectScreen">
+    <h1>🖥️ Christ Media Remote</h1>
+    <div class="field">
+      <label>Adresse du serveur</label>
+      <input id="serverUrl" type="text" placeholder="wss://ton-serveur.up.railway.app" style="text-align:left; font-size:14px;" />
+    </div>
+    <div class="field">
+      <label>Identifiant de l'ordinateur (9 chiffres)</label>
+      <input id="deviceId" type="text" inputmode="numeric" placeholder="123 456 789" maxlength="11" />
+    </div>
+    <div class="field">
+      <label>Code PIN</label>
+      <input id="pin" type="password" inputmode="numeric" placeholder="••••" />
+    </div>
+    <button id="connectBtn">Se connecter</button>
+    <div id="connectError"></div>
+  </div>
+
+  <div id="sessionScreen">
+    <div id="topBar">
+      <span id="peerName">—</span>
+      <span class="chip off" id="connChip">déconnecté</span>
+    </div>
+    <div id="videoWrap">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <div id="cursorDot"></div>
+    </div>
+    <div id="toolbar">
+      <button id="keyboardBtn">⌨️ Clavier</button>
+      <button id="ctrlAltDelBtn">Ctrl+Alt+Suppr</button>
+      <button id="escBtn">Échap</button>
+      <button id="fileBtn">📁 Envoyer fichier</button>
+      <button id="chatBtn">💬 Chat</button>
+      <button id="disconnectBtn">🔌 Déconnecter</button>
+    </div>
+    <input id="hiddenInput" type="text" autocapitalize="off" autocorrect="off" />
+    <input id="fileInput" type="file" style="display:none" />
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
