@@ -202,6 +202,60 @@ videoWrap.addEventListener("touchstart", () => {
 videoWrap.addEventListener("touchend", () => clearTimeout(pressTimer));
 videoWrap.addEventListener("touchmove", () => clearTimeout(pressTimer));
 
+// ------- Souris réelle (PC qui contrôle un autre PC) -------
+// Permet d'ouvrir ce contrôleur dans le navigateur d'un PC A pour piloter
+// un PC B (qui a l'agent installé), avec une vraie souris et molette.
+let mouseDown = false;
+
+videoWrap.addEventListener("mousemove", (e) => {
+  const { xRatio, yRatio } = toRatio(e.clientX, e.clientY);
+  sendCtl({ type: "mouse-move", xRatio, yRatio });
+  cursorDot.style.display = "block";
+  const wrapRect = videoWrap.getBoundingClientRect();
+  cursorDot.style.left = e.clientX - wrapRect.left + "px";
+  cursorDot.style.top = e.clientY - wrapRect.top + "px";
+});
+
+videoWrap.addEventListener("mouseleave", () => { cursorDot.style.display = "none"; });
+
+videoWrap.addEventListener("mousedown", (e) => {
+  e.preventDefault();
+  mouseDown = true;
+  const button = e.button === 2 ? "right" : e.button === 1 ? "middle" : "left";
+  sendCtl({ type: "mouse-button", button, down: true });
+});
+
+window.addEventListener("mouseup", (e) => {
+  if (!mouseDown) return;
+  mouseDown = false;
+  const button = e.button === 2 ? "right" : e.button === 1 ? "middle" : "left";
+  sendCtl({ type: "mouse-button", button, down: false });
+});
+
+// Empêche le menu clic-droit du navigateur pour laisser passer le vrai clic droit
+videoWrap.addEventListener("contextmenu", (e) => e.preventDefault());
+
+videoWrap.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  sendCtl({ type: "mouse-wheel", deltaY: e.deltaY });
+}, { passive: false });
+
+// Le clavier physique du PC contrôleur : on capte les touches directement
+// (sans passer par le champ caché, utile uniquement sur mobile)
+window.addEventListener("keydown", (e) => {
+  if (document.activeElement === hiddenInput) return; // évite les doublons
+  if (sessionScreen.style.display !== "flex") return;
+  if (e.key.length === 1) {
+    sendCtl({ type: "type-text", text: e.key });
+  } else {
+    sendCtl({ type: "key", key: e.key, down: true });
+  }
+});
+window.addEventListener("keyup", (e) => {
+  if (sessionScreen.style.display !== "flex") return;
+  if (e.key.length > 1) sendCtl({ type: "key", key: e.key, down: false });
+});
+
 // ------- Clavier -------
 document.getElementById("keyboardBtn").onclick = () => {
   hiddenInput.value = "";
