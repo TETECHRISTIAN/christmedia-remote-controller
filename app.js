@@ -19,8 +19,9 @@ let deviceId, pin;
 
 const DEFAULT_ICE = [
   { urls: "stun:stun.l.google.com:19302" },
-  // ⚠️ Ajoute ici un serveur TURN pour un fonctionnement fiable hors
-  // réseau local (voir README section "Accès depuis Internet").
+  { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" },
 ];
 
 // ------- Connexion -------
